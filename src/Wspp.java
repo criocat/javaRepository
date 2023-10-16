@@ -12,7 +12,7 @@ public class Wspp {
 
         public IntList() {}
 
-        public void push_back(int num) {
+        public void add(int num) {
             if (len == arr.length) {
                 arr = Arrays.copyOf(arr, 2 * arr.length);
             }
@@ -39,19 +39,19 @@ public class Wspp {
             IntList curArray = hashTable.get(curWord);
             if (curArray == null) {
                 IntList curIntList = new IntList();
-                curIntList.push_back(cnt);
+                curIntList.add(cnt);
                 hashTable.put(curWord, curIntList);
             } else {
-                curArray.push_back(cnt);
+                curArray.add(cnt);
             }
             curWord = in.next();
         }
         in.close();
-        ArrayList<Map.Entry<String, IntList>> arr = new ArrayList<>();
+        ArrayList<Map.Entry<String, IntList>> pairArray = new ArrayList<>();
         for (Map.Entry<String, IntList> pair : hashTable.entrySet()) {
-            arr.add(pair);
+            pairArray.add(pair);
         }
-        arr.sort(new Comparator<Map.Entry<String, IntList>>() {
+        pairArray.sort(new Comparator<Map.Entry<String, IntList>>() {
             @Override
             public int compare(Map.Entry<String, IntList> pair1, Map.Entry<String, IntList> pair2) {
                 return (pair1.getValue().get(0) < pair2.getValue().get(0) ? -1 : 1);
@@ -60,10 +60,10 @@ public class Wspp {
         BufferedWriter out = null;
         try {
             out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(args[1]), StandardCharsets.UTF_8));
-            for (int i = 0; i < arr.size(); ++i) {
-                out.write(arr.get(i).getKey() + " " + arr.get(i).getValue().len());
-                for (int j = 0; j < arr.get(i).getValue().len(); ++j) {
-                    out.write(" " + arr.get(i).getValue().get(j));
+            for (int i = 0; i < pairArray.size(); ++i) {
+                out.write(pairArray.get(i).getKey() + " " + pairArray.get(i).getValue().len());
+                for (int j = 0; j < pairArray.get(i).getValue().len(); ++j) {
+                    out.write(" " + pairArray.get(i).getValue().get(j));
                 }
                 out.write('\n');
             }
