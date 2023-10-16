@@ -1,10 +1,7 @@
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Scanner;
 import java.lang.Math;
-import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
 
 public class MyScanner {
     private Reader rd;
@@ -13,6 +10,7 @@ public class MyScanner {
     private int pos = buffSize;
     private final char nullChar = (char)(-1);
     private char[] buffer = new char[buffSize];
+
     public MyScanner(InputStream in) {
         rd = new InputStreamReader(in);
         str = new String(buffer);
@@ -25,11 +23,6 @@ public class MyScanner {
         } catch(IOException e) {
             System.out.print("the error occurred when opening the file " + e.getMessage());
         }
-    }
-
-    public MyScanner(String string) {
-        rd = new StringReader(string);
-        str = new String(buffer);
     }
 
     public boolean good(char c) {
@@ -47,13 +40,17 @@ public class MyScanner {
             System.out.print("reading error " + e.getMessage());
         }
     }
+
     public String next() {
-        while (pos < str.length() && str.charAt(pos) != nullChar && !good(str.charAt(pos))) {
-            ++pos;
+        while (true) {
             if (pos == str.length()) {
                 updateBuffer();
                 pos = 0;
             }
+            if (str.charAt(pos) == nullChar || good(str.charAt(pos))) {
+                break;
+            }
+            ++pos;
         }
         if (pos != str.length() && buffer[pos] == nullChar) {
             return null;
@@ -94,28 +91,12 @@ public class MyScanner {
                 }
                 return res.toString();
             }
-            if (str.charAt(pos) != '\n') {
-                if (str.charAt(pos) != '\r') {
-                    res.append(str.charAt(pos));
-                }
-            }
-            else {
-                ++pos;
-                return res.toString();
-            }
+            res.append(str.charAt(pos));
             ++pos;
+            if (res.length() >= System.lineSeparator().length() && res.substring(res.length() - System.lineSeparator().length()).equals(System.lineSeparator())) {
+                return res.substring(0, res.length() - System.lineSeparator().length());
+            }
         }
-    }
-
-    public char read() {
-        if (pos == str.length()) {
-            updateBuffer();
-            pos = 0;
-        }
-        if (str.charAt(pos) == nullChar) {
-            return nullChar;
-        }
-        return(str.charAt(pos++));
     }
 
     public void close() {
@@ -125,6 +106,7 @@ public class MyScanner {
             System.out.print("error when trying to close the file " + e.getMessage());
         }
     }
+
     public char getNullChar() {
         return nullChar;
     }
