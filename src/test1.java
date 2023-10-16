@@ -16,6 +16,7 @@ public class test1 {
         System.out.println((int)(System.lineSeparator().charAt(1)));
         System.out.print((int)'\r');
         System.out.print(' ');
+        System.out.print("hellow world");
     }
 }
 // 63 97
