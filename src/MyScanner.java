@@ -5,7 +5,7 @@ import java.lang.Math;
 
 public class MyScanner {
     private Reader rd;
-    private final int buffSize = 1024;
+    private final int buffSize = 2048;
     private final String lineSeparator = System.lineSeparator();
     private int pos = buffSize;
     private final char nullChar = (char) -1;
@@ -23,7 +23,7 @@ public class MyScanner {
         }
     }
 
-    private boolean good(char c, boolean readDigits) {
+    private boolean validCharacter(char c, boolean readDigits) {
         boolean res = Character.isAlphabetic(c) || c == '\'' || Character.getType(c) == Character.DASH_PUNCTUATION;
         return (readDigits ? res || Character.isDigit(c) : res);
     }
@@ -50,7 +50,7 @@ public class MyScanner {
                 updateBuffer();
                 pos = 0;
             }
-            if (buffer[pos] == nullChar || good(buffer[pos], readDigits)) {
+            if (buffer[pos] == nullChar || validCharacter(buffer[pos], readDigits)) {
                 break;
             }
             ++pos;
@@ -70,7 +70,7 @@ public class MyScanner {
             pointerR = pos;
             for (int i = pos; i < buffSize; ++i) {
                 pointerR = i;
-                if (!good(buffer[i], readDigits)) {
+                if (!validCharacter(buffer[i], readDigits)) {
                     --pointerR;
                     break;
                 }
@@ -79,6 +79,28 @@ public class MyScanner {
             pos = pointerR + 1;
         }
         return res.toString();
+    }
+
+    public boolean hasLineSeparator(boolean readDigits) {
+        StringBuilder StringTail = new StringBuilder();
+        while (true) {
+            if (pos == buffSize) {
+                updateBuffer();
+                pos = 0;
+            }
+            StringTail.append(buffer[pos]);
+            if (StringTail.length() >= lineSeparator.length() &&
+                    StringTail.substring(StringTail.length() - lineSeparator.length(), StringTail.length()).equals(lineSeparator)) {
+                return true;
+            }
+            if (validCharacter(buffer[pos], readDigits) || buffer[pos] == nullChar) {
+                return false;
+            }
+            if (StringTail.length() >= 2 * lineSeparator.length()) {
+                StringTail = new StringBuilder(StringTail.substring(StringTail.length() - lineSeparator.length(), StringTail.length()));
+            }
+            ++pos;
+        }
     }
 
     public String nextLine() {
@@ -102,15 +124,6 @@ public class MyScanner {
         }
     }
 
-    public boolean hasLineSeparator(boolean readDigits) {
-        while (true) {
-            if (pos == buffSize) {
-                updateBuffer();
-                pos = 0;
-            }
-
-        }
-    }
 
     public void close() {
         try {
