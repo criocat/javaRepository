@@ -10,7 +10,8 @@ public class Wspp {
         private int len = 0;
         private int[] arr = new int[1];
 
-        public IntList() {}
+        public IntList() {
+        }
 
         public void add(int num) {
             if (len == arr.length) {
@@ -30,40 +31,38 @@ public class Wspp {
 
     public static void main(String[] args) {
         Map<String, IntList> hashTable = new HashMap();
-        MyScanner in = new MyScanner(args[0], StandardCharsets.UTF_8);
-        String curWord = in.next();
+        ArrayList<String> allWords = new ArrayList<>();
         int cnt = 0;
-        while (curWord != null) {
-            ++cnt;
-            curWord = curWord.toLowerCase();
-            IntList curArray = hashTable.get(curWord);
-            if (curArray == null) {
-                IntList curIntList = new IntList();
-                curIntList.add(cnt);
-                hashTable.put(curWord, curIntList);
-            } else {
-                curArray.add(cnt);
+        try {
+            MyScanner in = new MyScanner(args[0], StandardCharsets.UTF_8);
+            ScannerFilter isValidCharacter = (char c) -> (Character.isAlphabetic(c) || Character.getType(c) == Character.DASH_PUNCTUATION || c == '\'');
+            String curWord = in.next(isValidCharacter, Integer.MAX_VALUE);
+            while (curWord != null) {
+                ++cnt;
+                curWord = curWord.toLowerCase();
+                IntList curArray = hashTable.get(curWord);
+                if (curArray == null) {
+                    allWords.add(curWord);
+                    IntList curIntList = new IntList();
+                    curIntList.add(cnt);
+                    hashTable.put(curWord, curIntList);
+                } else {
+                    curArray.add(cnt);
+                }
+                curWord = in.next(isValidCharacter, Integer.MAX_VALUE);
             }
-            curWord = in.next();
+            in.close();
+        } catch (IOException e) {
+            System.out.print("error while reading " + e.getMessage());
         }
-        in.close();
-        ArrayList<Map.Entry<String, IntList>> pairArray = new ArrayList<>();
-        for (Map.Entry<String, IntList> pair : hashTable.entrySet()) {
-            pairArray.add(pair);
-        }
-        pairArray.sort(new Comparator<Map.Entry<String, IntList>>() {
-            @Override
-            public int compare(Map.Entry<String, IntList> pair1, Map.Entry<String, IntList> pair2) {
-                return (pair1.getValue().get(0) < pair2.getValue().get(0) ? -1 : 1);
-            }
-        });
         BufferedWriter out = null;
         try {
             out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(args[1]), StandardCharsets.UTF_8));
-            for (int i = 0; i < pairArray.size(); ++i) {
-                out.write(pairArray.get(i).getKey() + " " + pairArray.get(i).getValue().len());
-                for (int j = 0; j < pairArray.get(i).getValue().len(); ++j) {
-                    out.write(" " + pairArray.get(i).getValue().get(j));
+            for (int i = 0; i < allWords.size(); ++i) {
+                IntList curIntList = hashTable.get(allWords.get(i));
+                out.write(allWords.get(i) + " " + curIntList.len());
+                for (int j = 0; j < curIntList.len(); ++j) {
+                    out.write(" " + curIntList.get(j));
                 }
                 out.write('\n');
             }

@@ -1,22 +1,21 @@
-import java.io.Reader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.io.*;
+
 public class test1 {
 
-    public static int get1() {
-    return get2();
+
+    interface aaa {
+
     }
-    public static int get2() {
-        return 2;
+
+    static class bbb implements aaa {
+        int a = 10;
+        public bbb() {}
     }
 
     public static void main(String[] args) {
-        System.out.println((int)(System.lineSeparator().charAt(1)));
-        System.out.print((int)'\r');
-        System.out.print(' ');
-        System.out.print("hellow world");
+        aaa obj = new bbb();
+        Class cl = obj.getClass();
+        System.out.println(cl);
     }
 }
-// 63 97
