@@ -18,6 +18,10 @@ public final class ParserTest {
     );
     public static final Selector SELECTOR = Selector.composite(ParserTest.class, ParserTester::new, "easy", "hard")
             .variant("Base", TRIPLE, ADD, SUBTRACT, MULTIPLY, DIVIDE, NEGATE)
+            .variant("Bitwise", AND, XOR, OR)
+            .variant("Ones", L_ONES, T_ONES)
+            .variant("LowHigh", LOW, HIGH)
+            .variant("Not", NOT)
             .selector();
 
     private ParserTest() {

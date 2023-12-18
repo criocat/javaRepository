@@ -4,10 +4,8 @@ import java.math.BigDecimal;
 
 public class Variable implements ExpressionPart {
     private final String str;
-    private final int hashCode;
     public Variable(String str) {
         this.str = str;
-        hashCode = str.hashCode();
     }
     public int evaluate(int x) {
         return x;
@@ -40,7 +38,7 @@ public class Variable implements ExpressionPart {
         return 0;
     }
     public int hashCode() {
-        return hashCode;
+        return str.hashCode();
     }
     public boolean equals(Object object) {
         if (object != null && object.getClass() == Variable.class) {

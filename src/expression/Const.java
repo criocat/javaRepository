@@ -3,45 +3,39 @@ package expression;
 import java.math.BigDecimal;
 
 public class Const implements ExpressionPart {
-    private final int val;
-    private final BigDecimal decVal;
-    private final int hashCode;
+    private final BigDecimal val;
     public Const(int val) {
-        this.val = val;
-        decVal = BigDecimal.valueOf(val);
-        hashCode = decVal.hashCode();
+        this.val = BigDecimal.valueOf(val);
     }
-    public Const(BigDecimal decVal) {
-        this.decVal = decVal;
-        val = decVal.intValue();
-        hashCode = decVal.hashCode();
+    public Const(BigDecimal val) {
+        this.val = val;
     }
     public int evaluate(int x) {
-        return val;
+        return val.intValue();
     }
     public BigDecimal evaluate(BigDecimal x) {
-        return decVal;
-    }
-    public int evaluate(int x, int y, int z) {
         return val;
     }
+    public int evaluate(int x, int y, int z) {
+        return val.intValue();
+    }
     public String toString() {
-        return decVal.toString();
+        return val.toString();
     }
     public void toString(StringBuilder strBuilder) {
-        strBuilder.append(decVal.toString());
+        strBuilder.append(val.toString());
     }
     public void toMiniString(StringBuilder res) {
-        res.append(decVal.toString());
+        res.append(val.toString());
     }
     public String toMiniString() {
-        return decVal.toString();
+        return val.toString();
     }
     public int getPrior() {
         return 0;
     }
     public int hashCode() {
-        return hashCode;
+        return val.hashCode();
     }
     public boolean equals(Object object) {
         if (object != null && object.getClass() == Const.class) {

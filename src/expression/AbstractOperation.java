@@ -4,32 +4,23 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 
 public abstract class AbstractOperation {
-    private ArrayList<ExpressionPart> parts = new ArrayList<>();
-    private final int prior;
-    private final int hashCode;
-    private final String operationStr;
+    private final ExpressionPart el, er;
 
-    public AbstractOperation(ExpressionPart pl, ExpressionPart pr, String operationStr, int prior) {
-        parts.add(pl);
-        parts.add(pr);
-        this.operationStr = operationStr;
-        this.prior = prior;
-        long hash1 = parts.get(0).hashCode();
-        long hash2 = parts.get(1).hashCode();
-        int mod = 1000000007, p1 = 153, p2 = 293;
-        hashCode = (int) ((hash1 * (p1 + 17 * prior) + hash2 * (p2 + 29 * prior)) % mod);
+    public AbstractOperation(ExpressionPart el, ExpressionPart er) {
+        this.el = el;
+        this.er = er;
     }
 
     protected IntPair getResult(int x) {
-        return new IntPair(parts.get(0).evaluate(x), parts.get(1).evaluate(x));
+        return new IntPair(el.evaluate(x), er.evaluate(x));
     }
 
     protected BigDecimalPair getDecResult(BigDecimal x) {
-        return new BigDecimalPair(parts.get(0).evaluate(x), parts.get(1).evaluate(x));
+        return new BigDecimalPair(el.evaluate(x), er.evaluate(x));
     }
 
     protected IntPair getResult(int x, int y, int z) {
-        return new IntPair(parts.get(0).evaluate(x, y, z), parts.get(1).evaluate(x, y, z));
+        return new IntPair(el.evaluate(x, y, z), er.evaluate(x, y, z));
     }
 
     public String toString() {
@@ -40,9 +31,9 @@ public abstract class AbstractOperation {
 
     public void toString(StringBuilder strBuilder) {
         strBuilder.append('(');
-        parts.get(0).toString(strBuilder);
-        strBuilder.append(" " + operationStr + " ");
-        parts.get(1).toString(strBuilder);
+        el.toString(strBuilder);
+        strBuilder.append(" " + getOperation() + " ");
+        er.toString(strBuilder);
         strBuilder.append(')');
     }
 
@@ -53,49 +44,62 @@ public abstract class AbstractOperation {
     }
 
     public void toMiniString(StringBuilder res) {
-        int priorL = parts.get(0).getPrior();
-        int priorR = parts.get(1).getPrior();
-        boolean bracketsL = false;
-        boolean bracketsR = false;
-        if (prior == 4 && priorR >= 3) {
+        int priorL = el.getPrior();
+        int priorR = er.getPrior();
+        int prior = getPrior();
+        boolean bracketsL = ((prior <= 2) && (priorL >= 3 && priorL <= 4) || (priorL >= 5 && priorL > prior));
+        boolean bracketsR = (prior == 4 && priorR >= 3) || (priorR >= 5 && (priorR >= prior));
+        if (priorR >= 5 && priorR == prior) {
+            bracketsR = false;
+        }
+        if (prior <= 2 && (priorR >= 3 || prior == 2 && priorR == 1 || prior == 1)) {
             bracketsR = true;
         }
-        if (prior <= 2) {
-            if (priorL >= 3) {
-                bracketsL = true;
-            }
-            if (priorR >= 3 || prior == 2 && priorR == 1 || prior == 1) {
-                bracketsR = true;
-            }
-        }
-        bracketsL = bracketsL && (priorL != 0);
         bracketsR = bracketsR && (priorR != 0);
         res.append((bracketsL ? "(" : ""));
-        parts.get(0).toMiniString(res);
-        res.append((bracketsL ? ")" : "")).append(" ").append(operationStr).append(" ").append((bracketsR ? "(" : ""));
-        parts.get(1).toMiniString(res);
+        el.toMiniString(res);
+        res.append((bracketsL ? ")" : "")).append(" ").append(getOperation()).append(" ").append((bracketsR ? "(" : ""));
+        er.toMiniString(res);
         res.append((bracketsR ? ")" : ""));
     }
 
-    public int getPrior() {
-        return prior;
+    abstract public int getPrior();
+
+    abstract  protected String getOperation();
+
+    abstract protected int calcInt(int num1, int num2);
+
+    abstract protected BigDecimal calcBigDecimal(BigDecimal num1, BigDecimal num2);
+
+    public int evaluate(int x) {
+        IntPair res = getResult(x);
+        return calcInt( res.getFirst(), res.getSecond());
+    }
+    public BigDecimal evaluate(BigDecimal x) {
+        BigDecimalPair res = getDecResult(x);
+        return calcBigDecimal(res.getFirst(), res.getSecond());
+    }
+    public int evaluate(int x, int y, int z) {
+        IntPair res = getResult(x, y, z);
+        return calcInt(res.getFirst(), res.getSecond());
     }
 
     public boolean equals(Object object) {
         if (object != null && object.getClass() == this.getClass()) {
-            if (((ExpressionPart) object).hashCode() != hashCode()) {
-                return false;
-            }
-            return ((ExpressionPart) object).equals(parts.get(0), parts.get(1));
+            return ((ExpressionPart) object).equals(el, er);
         }
         return false;
     }
 
     public boolean equals(ExpressionPart l, ExpressionPart r) {
-        return l != null && r != null && l.equals(parts.get(0)) && r.equals(parts.get(1));
+        return l != null && r != null && l.equals(el) && r.equals(er);
     }
 
     public int hashCode() {
-        return hashCode;
+        long hash1 = el.hashCode();
+        long hash2 = er.hashCode();
+        int prior = getPrior();
+        int mod = 1000000007, p1 = 153, p2 = 293;
+        return (int) ((hash1 * (p1 + 17 * prior) + hash2 * (p2 + 29 * prior)) % mod);
     }
 }

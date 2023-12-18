@@ -4,18 +4,22 @@ import java.math.BigDecimal;
 
 public class Divide extends AbstractOperation implements ExpressionPart {
     public Divide(ExpressionPart p1, ExpressionPart p2) {
-        super(p1, p2, "/", 1);
+        super(p1, p2);
     }
-    public int evaluate(int x) {
-        IntPair res = super.getResult(x);
-        return res.getFirst() / res.getSecond();
+
+    public String getOperation() {
+        return "/";
     }
-    public BigDecimal evaluate(BigDecimal x) {
-        BigDecimalPair res = super.getDecResult(x);
-        return res.getFirst().divide((res.getSecond()));
+
+    public int getPrior() {
+        return 1;
     }
-    public int evaluate(int x, int y, int z) {
-        IntPair res = super.getResult(x, y, z);
-        return res.getFirst() / res.getSecond();
+
+    public int calcInt(int num1, int num2) {
+        return num1 / num2;
+    }
+
+    public BigDecimal calcBigDecimal(BigDecimal num1, BigDecimal num2) {
+        return num1.divide(num2);
     }
 }

@@ -7,6 +7,7 @@ import expression.common.Reason;
 import java.util.function.Consumer;
 import java.util.function.LongBinaryOperator;
 import java.util.function.LongUnaryOperator;
+import java.util.stream.IntStream;
 
 /**
  * @author Georgiy Korneev (kgeorgiy@kgeorgiy.info)
@@ -18,6 +19,20 @@ public final class Operations {
     public static final Operation SUBTRACT  = binary("-", 1602, (a, b) -> a - b);
     public static final Operation MULTIPLY  = binary("*", 2001, (a, b) -> a * b);
     public static final Operation DIVIDE    = binary("/", 2002, (a, b) -> b == 0 ? Reason.DBZ.error() : a / b);
+
+    public static final Operation AND = binary("&", 800, (a, b) -> a & b);
+    public static final Operation XOR = binary("^", 760, (a, b) -> a ^ b);
+    public static final Operation OR = binary("|", 720, (a, b) -> a | b);
+
+    public static final Operation L_ONES = unary("l1", v ->
+            (int) IntStream.iterate((int) v, i -> i < 0, i -> i << 1).count());
+    public static final Operation T_ONES = unary("t1", v ->
+            (int) IntStream.iterate((int) v, i -> (i & 1) != 0, i -> i >>> 1).count());
+
+    public static final Operation HIGH = unary("high", v -> Integer.highestOneBit((int) v));
+    public static final Operation LOW = unary("low", v -> Integer.lowestOneBit((int) v));
+
+    public static final Operation NOT = unary("~", a -> ~a);
 
     private Operations() {
     }
