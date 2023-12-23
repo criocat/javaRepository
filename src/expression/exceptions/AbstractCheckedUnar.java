@@ -1,16 +1,13 @@
-package expression.parser;
+package expression.exceptions;
 
-import expression.Const;
 import expression.ExpressionPart;
-import expression.Multiply;
-import expression.Variable;
 
 import java.math.BigDecimal;
 
-public abstract class AbstractUnar {
+public abstract class AbstractCheckedUnar {
     private ExpressionPart val;
 
-    public AbstractUnar(ExpressionPart val) {
+    public AbstractCheckedUnar(ExpressionPart val) {
         this.val = val;
     }
 
@@ -51,11 +48,20 @@ public abstract class AbstractUnar {
         return (int) ((long) val.hashCode() + getOperation().hashCode()) % mod;
     }
 
-    abstract protected int evaluateByNum(int num);
+    abstract protected long evaluateByNum(int num);
+
+    private int evaluateByRes(int res) {
+        long val = evaluateByNum(res);
+        if (val > Integer.MAX_VALUE || val < Integer.MIN_VALUE) {
+            throw new RuntimeException("overflow");
+        }
+        return (int)val;
+    }
 
     public int evaluate(int x) {
-        return evaluateByNum(val.evaluate(x));
+        return evaluateByRes(val.evaluate(x));
     }
+
     public BigDecimal evaluate(BigDecimal x) {
         return BigDecimal.valueOf(evaluate(x.intValue()));
     }
@@ -64,7 +70,7 @@ public abstract class AbstractUnar {
 
 
     public int evaluate(int x, int y, int z) {
-        return evaluateByNum(val.evaluate(x, y, z));
+        return evaluateByRes(val.evaluate(x, y, z));
     }
 
     public boolean equals(Object object) {

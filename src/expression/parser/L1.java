@@ -1,11 +1,6 @@
 package expression.parser;
 
-import expression.Const;
 import expression.ExpressionPart;
-import expression.Multiply;
-import expression.Variable;
-
-import java.math.BigDecimal;
 
 public class L1 extends AbstractUnar implements ExpressionPart {
     public L1(ExpressionPart val) {

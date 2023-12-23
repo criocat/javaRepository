@@ -2,7 +2,7 @@ package expression;
 
 import java.math.BigDecimal;
 
-public class Add extends AbstractOperation implements ExpressionPart {
+public class Add extends expression.AbstractOperation implements ExpressionPart {
     public Add(ExpressionPart p1, ExpressionPart p2) {
         super(p1, p2);
     }

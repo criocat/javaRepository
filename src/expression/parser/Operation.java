@@ -1,14 +1,19 @@
 package expression.parser;
-enum Operation {
-    ADD(3), SUB(3), DIV(4), MUL(4), AND(2), XOR(1), OR(0);
+public enum Operation {
+    ADD(3, "+"), SUB(3, "-"), DIV(4, "/"), MUL(4, "*"), AND(2, "&"), XOR(1, "^"), OR(0, "|"),
+    MOVEL(2, "<<"), MOVER(2, ">>"), SMOVER(2, ">>>"), MIN(2, "min"), MAX(2, "max");
 
-    Operation(int prior) {
+    Operation(int prior, String opStr) {
         this.prior = prior;
+        this.opStr = opStr;
     }
 
     public int getPrior() {
         return prior;
     }
-
-    final int prior;
+    public String getOperation() {
+        return opStr;
+    }
+    private final int prior;
+    private final String opStr;
 }

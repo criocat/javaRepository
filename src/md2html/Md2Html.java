@@ -13,23 +13,26 @@ public class Md2Html {
             System.out.print("not valid number of arguments");
             return;
         }
+        int cnt = 0;
+        PrintWriter writer = null;
         try {
             Scanner sc = new Scanner(new File(args[0]), "UTF-8");
             try {
                 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(args[1]), StandardCharsets.UTF_8));
-                PrintWriter writer = new PrintWriter("myout.txt", "UTF-8");
+                if (args[1].equals("test45.out")) writer = new PrintWriter("myout.txt", "UTF-8");
                 try {
                     while (true) {
                         StringBuilder StringBlock = readMdBlock(sc);
                         if (StringBlock == null) break;
-                        writer.write(StringBlock.toString());
+                        cnt += StringBlock.length();
                         int headerLevel = getHeaderLevel(StringBlock);
                         String HtmlBlock = new BlockConverterMd2Html().mdBlockToHtmlBlock(StringBlock.substring((headerLevel == 0 ? headerLevel : headerLevel + 1)));
                         writeBlock(out, headerLevel, HtmlBlock);
                     }
+                    if (args[1].equals("test45.out")) writer.write("" + cnt);
                 } finally {
                     out.close();
-                    writer.close();
+                    if(writer != null) writer.close();
                 }
             } finally {
                 sc.close();

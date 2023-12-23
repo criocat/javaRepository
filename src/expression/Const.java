@@ -10,6 +10,7 @@ public class Const implements ExpressionPart {
     public Const(BigDecimal val) {
         this.val = val;
     }
+
     public int evaluate(int x) {
         return val.intValue();
     }

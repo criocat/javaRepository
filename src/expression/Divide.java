@@ -2,7 +2,7 @@ package expression;
 
 import java.math.BigDecimal;
 
-public class Divide extends AbstractOperation implements ExpressionPart {
+public class Divide extends expression.AbstractOperation implements ExpressionPart {
     public Divide(ExpressionPart p1, ExpressionPart p2) {
         super(p1, p2);
     }

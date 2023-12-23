@@ -2,12 +2,14 @@ package expression.parser;
 
 import expression.*;
 
+import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 
 public class ExpressionParser implements TripleParser {
-    int pos;
-    String strExp;
-    final char END = (char) -2;
+    private int pos;
+    private String strExp;
+    private final char END = (char) -2;
 
     private void skip() {
         if (pos != strExp.length()) {
@@ -107,35 +109,35 @@ public class ExpressionParser implements TripleParser {
         return expectUnarMinus() || expectLow() || expectHigh() || expectL1() || expectT1();
     }
 
-    private TripleExpression parsePartInUnarOperation(int len) throws Exception {
+    private TripleExpression parsePartInUnarOperation(int len) {
         skip(len);
         skipSpaces();
         TripleExpression e = null;
         if (expectedPart()) {
             e = parsePart();
         } else {
-            throw new Exception("expected part, but found \'" + take() + "\'");
+            throw new RuntimeException("expected part, but found \'" + take() + "\'");
         }
         return e;
     }
 
-    private Low parseLow() throws Exception {
+    private Low parseLow() {
         return new Low((ExpressionPart) parsePartInUnarOperation(3));
     }
 
-    private High parseHigh() throws Exception {
+    private High parseHigh() {
         return new High((ExpressionPart) parsePartInUnarOperation(4));
     }
 
-    private L1 parseL1() throws Exception {
+    private L1 parseL1() {
         return new L1((ExpressionPart) parsePartInUnarOperation(2));
     }
 
-    private T1 parseT1() throws Exception {
+    private T1 parseT1() {
         return new T1((ExpressionPart) parsePartInUnarOperation(2));
     }
 
-    private Negative parseUnarMinus() throws Exception {
+    private Negative parseUnarMinus() {
         return new Negative((ExpressionPart) parsePartInUnarOperation(1));
     }
 
@@ -203,7 +205,7 @@ public class ExpressionParser implements TripleParser {
         return expectedConst() || expectedVariable() || expectedUnarOperation() || expectedBracket();
     }
 
-    private TripleExpression parseUnarOperation() throws Exception {
+    private TripleExpression parseUnarOperation() {
         skipSpaces();
         if (expectUnarMinus()) {
             return parseUnarMinus();
@@ -216,11 +218,11 @@ public class ExpressionParser implements TripleParser {
         } else if (expectT1()) {
             return parseT1();
         } else {
-            throw new Exception("expected part, but found \'" + take() + "\'");
+            throw new RuntimeException("expected part, but found \'" + take() + "\'");
         }
     }
 
-    private TripleExpression parsePart() throws Exception {
+    private TripleExpression parsePart() {
         if (expectedConst()) {
             return parseConst();
         } else if (expectedUnarOperation()) {
@@ -232,20 +234,20 @@ public class ExpressionParser implements TripleParser {
         }
     }
 
-    private TripleExpression parseBracket() throws Exception {
+    private TripleExpression parseBracket() {
         skip();
         TripleExpression res = parseExpression(')', -1);
         skip();
         return res;
     }
 
-    private TripleExpression parseExpression(char endChar, int prior) throws Exception {
+    private TripleExpression parseExpression(char endChar, int prior) {
         skipSpaces();
         TripleExpression secondPart = null, lastPart = null;
         if (expectedPart()) {
             lastPart = parsePart();
         } else {
-            throw new Exception("expected part, but found nothing");
+            throw new RuntimeException("expected part, but found nothing");
         }
         skipSpaces();
         while (expectedOperation()) {
@@ -261,13 +263,13 @@ public class ExpressionParser implements TripleParser {
                     lastPart = getResultOfOperation(lastPart, secondPart, op);
                     skipSpaces();
                 } else {
-                    throw new Exception("expected part, but found \'" + take() + "\'");
+                    throw new RuntimeException("expected part, but found \'" + take() + "\'");
                 }
             }
         }
         skipSpaces();
         if (take() != endChar) {
-            throw new Exception("expected " + endChar + ", but found \'" + take() + "\'");
+            throw new RuntimeException("expected " + endChar + ", but found \'" + take() + "\'");
         }
         return lastPart;
     }
@@ -275,12 +277,6 @@ public class ExpressionParser implements TripleParser {
     public TripleExpression parse(String str) {
         strExp = str;
         pos = 0;
-        TripleExpression res = null;
-        try {
-            res = parseExpression(END, -1);
-        } catch (Exception e) {
-            System.out.printf(e.getMessage());
-        }
-        return res;
+        return parseExpression(END, -1);
     }
 }

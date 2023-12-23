@@ -1,9 +1,7 @@
 package expression.parser;
 
 import expression.AbstractOperation;
-import expression.BigDecimalPair;
 import expression.ExpressionPart;
-import expression.IntPair;
 
 import java.math.BigDecimal;
 
