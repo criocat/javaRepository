@@ -48,13 +48,7 @@ public class TestGenerator<C> {
     }
 
     private <E> void test(final Expr<C, E> expr, final Consumer<Test<C, E>> consumer) {
-        consumer.accept(new Test<>(
-                expr,
-                renderer.render(expr, NodeRenderer.FULL),
-                renderer.render(expr, NodeRenderer.FULL_EXTRA),
-                renderer.render(expr, NodeRenderer.MINI),
-                renderer.render(expr, NodeRenderer.SAME)
-        ));
+        consumer.accept(new Test<>(expr, renderer));
     }
 
     private Node<C> c() {
@@ -159,17 +153,16 @@ public class TestGenerator<C> {
 
     public static class Test<C, E> {
         public final Expr<C, E> expr;
-        public final String full;
-        public final String fullExtra;
-        public final String mini;
-        public final String safe;
+        private final Map<NodeRenderer.Settings, String> rendered = new HashMap<>();
+        private final NodeRenderer<C> renderer;
 
-        public Test(final Expr<C, E> expr, final String full, final String fullExtra, final String mini, final String safe) {
+        public Test(Expr<C, E> expr, NodeRenderer<C> renderer) {
             this.expr = expr;
-            this.full = full;
-            this.fullExtra = fullExtra;
-            this.mini = mini;
-            this.safe = safe;
+            this.renderer = renderer;
+        }
+
+        public String render(final NodeRenderer.Settings settings) {
+            return rendered.computeIfAbsent(settings, s -> renderer.render(expr, s));
         }
     }
 }

@@ -4,6 +4,7 @@ import base.ExtendedRandom;
 import base.Functional;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -15,6 +16,7 @@ public class NodeRenderer<C> {
     private static final Mode MINI_MODE = Mode.SIMPLE_MINI; // Replace by TRUE_MINI for some challenge
     private static final String PAREN = "[";
     private static final String SPACE = " ";
+    private static final List<Paren> DEFAULT_PARENS = List.of(new Paren("(", ")"));
 
     public static final Settings FULL = Mode.FULL.settings(0);
     public static final Settings FULL_EXTRA = Mode.FULL.settings(Integer.MAX_VALUE / 4);
@@ -29,6 +31,10 @@ public class NodeRenderer<C> {
     public NodeRenderer(final ExtendedRandom random) {
         this.random = random;
         nodeRenderer.unary(PAREN, (mode, arg) -> paren(true, arg));
+    }
+
+    public static Paren paren(String open, String close) {
+        return new Paren(open, close);
     }
 
     public void unary(final String name) {
@@ -97,16 +103,25 @@ public class NodeRenderer<C> {
     }
 
     public String render(final Expr<C, ?> expr, final Settings settings) {
-        return renderNode(renderToNode(settings, expr));
+        return renderNode(renderToNode(settings, expr), settings.parens);
     }
 
-    public String renderNode(final Node<C> node) {
+    public String renderNode(Node<C> node) {
+        return renderNode(node, DEFAULT_PARENS);
+    }
+
+    private String renderNode(final Node<C> node, List<Paren> parens) {
         return node.cata(
                 String::valueOf,
                 name -> name,
-                (name, arg) -> name == PAREN ? "(" + arg + ")" : name + arg,
+                (name, arg) -> name == PAREN ? parens(arg, parens) : name + arg,
                 (name, a, b) -> a + " " + name + " " + b
         );
+    }
+
+    private String parens(String expression, List<Paren> parens) {
+        final Paren paren = random.randomItem(parens);
+        return paren.open + expression + paren.close;
     }
 
     public Node<C> renderToNode(final Settings settings, final Expr<C, ?> expr) {
@@ -156,13 +171,29 @@ public class NodeRenderer<C> {
         }
     }
 
+    public static class Paren {
+        private final String open;
+        private final String close;
+
+        public Paren(String open, String close) {
+            this.open = open;
+            this.close = close;
+        }
+    }
+
     public static class Settings {
         private final Mode mode;
         private final int limit;
+        private final List<Paren> parens;
 
         public Settings(final Mode mode, final int limit) {
+            this(mode, limit, DEFAULT_PARENS);
+        }
+
+        private Settings(Mode mode, int limit, List<Paren> parens) {
             this.mode = mode;
             this.limit = limit;
+            this.parens = parens;
         }
 
         public <C> Node<C> extra(Node<C> node, final ExtendedRandom random) {
@@ -170,6 +201,10 @@ public class NodeRenderer<C> {
                 node = paren(true, node);
             }
             return node;
+        }
+
+        public Settings withParens(final List<Paren> parens) {
+            return this.parens.equals(parens) ? this : new Settings(mode, limit, List.copyOf(parens));
         }
     }
 }

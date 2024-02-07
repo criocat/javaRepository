@@ -101,18 +101,40 @@ public class ExceptionsTestSet<E extends ToMiniString, C> extends ParserTestSet<
                     }
                     final char pc = expr.charAt(pi);
                     final char nc = expr.charAt(ni);
-                    if ("-(*".indexOf(nc) < 0 && nc != ch && pc != ch && !Character.isLetterOrDigit(nc) && nc != '$') {
-                        final String input = expr.substring(0, index) + ch + expr.substring(index);
-                        counter.shouldFail(
+                    if ("-([{*".indexOf(nc) < 0 && nc != ch && pc != ch && !Character.isLetterOrDigit(nc) && nc != '$') {
+                        shouldFail(
+                                variables,
                                 "Parsing error expected for " + expr.substring(0, index) + "<ERROR_INSERTED -->" + ch + "<-- ERROR_INSERTED>" + expr.substring(index),
-                                () -> kind.parse(input, variables)
+                                expr.substring(0, index) + ch + expr.substring(index)
                         );
                         break;
                     }
                 }
             }
+            parens(variables, expr, '[', ']');
+            parens(variables, expr, '{', '}');
         }
 
         return counter.testV(() -> counter.call("parse", () -> kind.parse(expr, variables)));
+    }
+
+    private void parens(List<String> variables, String expr, char open, char close) {
+        if (expr.indexOf(open) >= 0) {
+            replaces(variables, expr, open, '(');
+            replaces(variables, expr, close, ')');
+            if (expr.indexOf('(') >= 0) {
+                replaces(variables, expr, '(', open);
+                replaces(variables, expr, ')', close);
+            }
+        }
+    }
+
+    private void replaces(List<String> variables, String expr, char what, char by) {
+        final String input = expr.replace(what, by);
+        shouldFail(variables, "Unmatched parentheses: " + input, input);
+    }
+
+    private void shouldFail(List<String> variables, String message, String input) {
+        counter.shouldFail(message, () -> kind.parse(input, variables));
     }
 }

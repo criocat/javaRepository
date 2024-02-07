@@ -1,7 +1,10 @@
 package expression.exceptions;
 
+import expression.ExpressionPart;
+import expression.IntPair;
+
 import java.math.BigDecimal;
-import expression.*;
+import java.util.List;
 
 public abstract class AbstractCheckedOperation {
     private final ExpressionPart el, er;
@@ -15,9 +18,11 @@ public abstract class AbstractCheckedOperation {
         return new IntPair(el.evaluate(x), er.evaluate(x));
     }
 
-    protected BigDecimalPair getDecResult(BigDecimal x) {
-        return new BigDecimalPair(el.evaluate(x), er.evaluate(x));
+    protected IntPair getResultByList(List<Integer> l) {
+        return new IntPair(el.evaluate(l), er.evaluate(l));
     }
+
+
 
     protected IntPair getResult(int x, int y, int z) {
         return new IntPair(el.evaluate(x, y, z), er.evaluate(x, y, z));
@@ -37,6 +42,7 @@ public abstract class AbstractCheckedOperation {
         strBuilder.append(')');
     }
 
+
     public String toMiniString() {
         StringBuilder res = new StringBuilder();
         toMiniString(res);
@@ -48,9 +54,7 @@ public abstract class AbstractCheckedOperation {
         int priorR = er.getPrior();
         int prior = getPrior();
         boolean bracketsL = ((prior <= 2) && (priorL >= 3 && priorL <= 4) || (priorL >= 5 && (priorL > prior && prior < 5)));
-        boolean bracketsR = (prior == 4 && priorR >= 3) || (priorR >= 5);
-
-
+        boolean bracketsR = (prior == 4 && priorR >= 3) || (priorR >= 5 && (priorR <= 7 || priorR != prior));
         if (prior <= 2 && (priorR >= 3 || prior == 2 && priorR == 1 || prior == 1)) {
             bracketsR = true;
         }
@@ -66,28 +70,21 @@ public abstract class AbstractCheckedOperation {
 
     abstract  protected String getOperation();
 
-    abstract protected long calc(int num1, int num2);
-
-    private int evaluateByRes(IntPair res)  {
-        if (getOperation().equals("/") && res.getSecond() == 0) {
-            throw new RuntimeException("division by zero");
-        }
-        long val = calc( res.getFirst(), res.getSecond());
-        if (val > Integer.MAX_VALUE || val < Integer.MIN_VALUE) {
-            throw new RuntimeException("overflow");
-        }
-        return (int)val;
-    }
+    abstract protected int calc(int num1, int num2);
 
     public int evaluate(int x) {
-        return evaluateByRes(getResult(x));
+        IntPair res = getResult(x);
+        return calc(res.getFirst(), res.getSecond());
     }
-    public BigDecimal evaluate(BigDecimal x) {
-        BigDecimalPair res = getDecResult(x);
-        return BigDecimal.valueOf(evaluateByRes(new IntPair(res.getFirst().intValue(), res.getSecond().intValue())));
-    }
+
     public int evaluate(int x, int y, int z) {
-        return evaluateByRes(getResult(x, y, z));
+        IntPair res = getResult(x, y, z);
+        return calc(res.getFirst(), res.getSecond());
+    }
+
+    public int evaluate(List<Integer> variables) {
+        IntPair res = getResultByList(variables);
+        return calc(res.getFirst(), res.getSecond());
     }
 
     public boolean equals(Object object) {

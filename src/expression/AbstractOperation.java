@@ -1,7 +1,7 @@
 package expression;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AbstractOperation {
     private final ExpressionPart el, er;
@@ -15,8 +15,8 @@ public abstract class AbstractOperation {
         return new IntPair(el.evaluate(x), er.evaluate(x));
     }
 
-    protected BigDecimalPair getDecResult(BigDecimal x) {
-        return new BigDecimalPair(el.evaluate(x), er.evaluate(x));
+    protected IntPair getResultByList(List<Integer> l) {
+        return new IntPair(el.evaluate(l), er.evaluate(l));
     }
 
     protected IntPair getResult(int x, int y, int z) {
@@ -75,12 +75,14 @@ public abstract class AbstractOperation {
         IntPair res = getResult(x);
         return calcInt( res.getFirst(), res.getSecond());
     }
-    public BigDecimal evaluate(BigDecimal x) {
-        BigDecimalPair res = getDecResult(x);
-        return calcBigDecimal(res.getFirst(), res.getSecond());
-    }
+
     public int evaluate(int x, int y, int z) {
         IntPair res = getResult(x, y, z);
+        return calcInt(res.getFirst(), res.getSecond());
+    }
+
+    public int evaluate(List<Integer> variables) {
+        IntPair res = getResultByList(variables);
         return calcInt(res.getFirst(), res.getSecond());
     }
 

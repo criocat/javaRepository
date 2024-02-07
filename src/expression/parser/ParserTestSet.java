@@ -2,10 +2,7 @@ package expression.parser;
 
 import base.*;
 import expression.ToMiniString;
-import expression.common.Expr;
-import expression.common.ExpressionKind;
-import expression.common.Reason;
-import expression.common.TestGenerator;
+import expression.common.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,20 +85,19 @@ public class ParserTestSet<E extends ToMiniString, C> {
         final Expr<Integer, E> expr = test.expr;
         final List<Pair<String, E>> vars = expr.variables();
         final List<String> variables = Functional.map(vars, Pair::first);
-        final String full = test.full;
-        final String mini = test.mini;
-        final String safe = test.safe;
+        final String full = test.render(NodeRenderer.FULL);
+        final String mini = test.render(NodeRenderer.MINI);
 
-        final E fullParsed = parse(full, variables, false);
-        final E miniParsed = parse(mini, variables, false);
-        final E safeParsed = parse(safe, variables, false);
+        final E fullParsed = parse(test, variables, NodeRenderer.FULL);
+        final E miniParsed = parse(test, variables, NodeRenderer.MINI);
+        final E safeParsed = parse(test, variables, NodeRenderer.SAME);
 
         checkToString(full, mini, "base", fullParsed);
         if (tester.mode() > 0) {
             counter.test(() -> Asserts.assertEquals("mini.toMiniString", mini, miniParsed.toMiniString()));
             counter.test(() -> Asserts.assertEquals("safe.toMiniString", mini, safeParsed.toMiniString()));
         }
-        checkToString(full, mini, "extraParentheses", parse(test.fullExtra, variables, false));
+        checkToString(full, mini, "extraParentheses", parse(test, variables, NodeRenderer.FULL_EXTRA));
         checkToString(full, mini, "noSpaces", parse(removeSpaces(full), variables, false));
         checkToString(full, mini, "extraSpaces", parse(extraSpaces(full), variables, false));
 
@@ -112,8 +108,13 @@ public class ParserTestSet<E extends ToMiniString, C> {
 
         check(expected, fullParsed, variables, tester.random().random(variables.size(), ExtendedRandom::nextInt), full);
         if (this.safe) {
+            final String safe = test.render(NodeRenderer.SAME);
             check(expected, safeParsed, variables, tester.random().random(variables.size(), ExtendedRandom::nextInt), safe);
         }
+    }
+
+    private E parse(TestGenerator.Test<Integer, E> test, List<String> variables, NodeRenderer.Settings settings) {
+        return parse(test.render(settings.withParens(tester.parens)), variables, false);
     }
 
     private static final String LOOKBEHIND = "(?<![a-zA-Z0-9<>*/+-])";
@@ -221,5 +222,4 @@ public class ParserTestSet<E extends ToMiniString, C> {
     public interface Parser<E> {
         E parse(final String expression, final List<String> variables) throws Exception;
     }
-
 }

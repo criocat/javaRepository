@@ -1,7 +1,6 @@
 package expression.exceptions;
 
-import java.math.BigDecimal;
-import expression.*;
+import expression.ExpressionPart;
 
 public class Max extends AbstractCheckedOperation implements ExpressionPart {
     public Max(ExpressionPart p1, ExpressionPart p2) {
@@ -9,15 +8,15 @@ public class Max extends AbstractCheckedOperation implements ExpressionPart {
     }
 
     public int getPrior() {
-        return 5;
+        return 8;
     }
 
     public String getOperation() {
         return "max";
     }
 
-    public long calc(int num1, int num2) {
-        return Math.max((long)num1, (long)num2);
+    public int calc(int num1, int num2) {
+        return Math.max(num1, num2);
     }
 
 }

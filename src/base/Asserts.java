@@ -14,6 +14,9 @@ public final class Asserts {
         Locale.setDefault(Locale.US);
     }
 
+    private Asserts() {
+    }
+
     public static void assertEquals(final String message, final Object expected, final Object actual) {
         final String reason = String.format("%s:%n     expected `%s`,%n       actual `%s`",
                 message, toString(expected), toString(actual));
@@ -73,5 +76,9 @@ public final class Asserts {
         return args.length > 0 && args[args.length - 1] instanceof Throwable
                ? new AssertionError(message, (Throwable) args[args.length - 1])
                : new AssertionError(message);
+    }
+
+    public static void printStackTrace(final String message) {
+        new Exception(message).printStackTrace(System.out);
     }
 }

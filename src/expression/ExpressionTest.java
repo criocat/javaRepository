@@ -10,8 +10,7 @@ import java.util.function.Function;
  * @author Georgiy Korneev (kgeorgiy@kgeorgiy.info)
  */
 public final class ExpressionTest {
-    public static final Selector SELECTOR = new Selector(ExpressionTest.class, "easy", "hard")
-            .variant("Base", v(Expression::tester));
+    public static final Selector SELECTOR = new Selector(ExpressionTest.class, "easy", "hard");
 
     private ExpressionTest() {
     }

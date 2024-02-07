@@ -24,6 +24,8 @@ public class ExceptionsTester extends ParserTester {
             Op.of("No last argument'", "1 + (x * y - ) + 3"),
             Op.of("No opening parenthesis", "x * y)"),
             Op.of("No closing parenthesis", "(x * y"),
+            Op.of("Mismatched closing parenthesis", "(x * y]"),
+            Op.of("Mismatched open parenthesis", "[x * y)"),
             Op.of("Start symbol", "@x * y"),
             Op.of("Middle symbol", "x @ * y"),
             Op.of("End symbol", "x * y@"),

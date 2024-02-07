@@ -1,7 +1,6 @@
 package expression.exceptions;
 
-import java.math.BigDecimal;
-import expression.*;
+import expression.ExpressionPart;
 
 public class CheckedMultiply extends AbstractCheckedOperation implements ExpressionPart {
     public CheckedMultiply(ExpressionPart p1, ExpressionPart p2) {
@@ -15,7 +14,11 @@ public class CheckedMultiply extends AbstractCheckedOperation implements Express
     public String getOperation() {
         return "*";
     }
-    public long calc(int num1, int num2) {
-        return (long)num1 * (long)num2;
+    public int calc(int num1, int num2) {
+        int res = num1 * num2;
+        if (num1 != 0 && num2 != 0 && (res / num2 != num1 || res / num1 != num2)) {
+            throw new RuntimeException("overflow");
+        }
+        return res;
     }
 }

@@ -1,6 +1,7 @@
 package expression;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class Const implements ExpressionPart {
     private final BigDecimal val;
@@ -37,6 +38,10 @@ public class Const implements ExpressionPart {
     }
     public int hashCode() {
         return val.hashCode();
+    }
+
+    public int evaluate(List<Integer> variables) {
+        return val.intValue();
     }
     public boolean equals(Object object) {
         if (object != null && object.getClass() == Const.class) {

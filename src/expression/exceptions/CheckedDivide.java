@@ -1,7 +1,6 @@
 package expression.exceptions;
 
-import java.math.BigDecimal;
-import expression.*;
+import expression.ExpressionPart;
 
 
 public class CheckedDivide extends AbstractCheckedOperation implements ExpressionPart {
@@ -17,7 +16,13 @@ public class CheckedDivide extends AbstractCheckedOperation implements Expressio
         return 1;
     }
 
-    public long calc(int num1, int num2) {
-        return (long)num1 / (long)num2;
+    public int calc(int num1, int num2) {
+        if (num1 == Integer.MIN_VALUE && num2 == -1) {
+            throw new RuntimeException("overflow");
+        }
+        if (num2 == 0) {
+            throw new RuntimeException("division by zero");
+        }
+        return num1 / num2;
     }
 }

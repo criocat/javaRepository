@@ -10,7 +10,10 @@ public class CheckedNegate extends AbstractCheckedUnar implements ExpressionPart
     public String getOperation() {
         return "-";
     }
-    public long evaluateByNum(int num) {
-        return -((long)num);
+    public int calc(int num) {
+        if (num == Integer.MIN_VALUE) {
+            throw new RuntimeException("overflow");
+        }
+        return -num;
     }
 }

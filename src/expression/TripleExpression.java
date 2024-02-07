@@ -1,9 +1,11 @@
 package expression;
 
+import base.ExtendedRandom;
 import base.Pair;
 import base.Selector;
 import base.TestCounter;
 import expression.common.ExpressionKind;
+import expression.common.Type;
 
 import java.util.List;
 
@@ -15,11 +17,12 @@ import java.util.List;
 @FunctionalInterface
 @SuppressWarnings("ClassReferencesSubclass")
 public interface TripleExpression extends ToMiniString {
+    Type<Integer> TYPE = new Type<>(a -> a, ExtendedRandom::nextInt, int.class);
     Selector SELECTOR = ExpressionTest.SELECTOR
             .variant("Triple", ExpressionTest.v(TripleExpression::tester));
 
     ExpressionKind<TripleExpression, Integer> KIND = new ExpressionKind<>(
-            Expression.TYPE,
+            TYPE,
             TripleExpression.class,
             List.of(
                     Pair.of("x", new Variable("x")),
@@ -32,7 +35,7 @@ public interface TripleExpression extends ToMiniString {
     int evaluate(int x, int y, int z);
 
     private static Const c(final Integer c) {
-        return Expression.TYPE.constant(c);
+        return TYPE.constant(c);
     }
 
     static ExpressionTester<?, ?> tester(final TestCounter counter) {

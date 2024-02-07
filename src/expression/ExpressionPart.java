@@ -1,8 +1,6 @@
 package expression;
 
-import java.math.BigDecimal;
-
-public interface ExpressionPart extends ToMiniString, Expression, BigDecimalExpression, TripleExpression {
+public interface ExpressionPart extends ToMiniString, Expression, TripleExpression, ListExpression {
     String toString();
 
     void toString(StringBuilder strBuilder);

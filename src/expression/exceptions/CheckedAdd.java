@@ -1,7 +1,6 @@
 package expression.exceptions;
 
-import java.math.BigDecimal;
-import expression.*;
+import expression.ExpressionPart;
 
 public class CheckedAdd extends AbstractCheckedOperation implements ExpressionPart {
     public CheckedAdd(ExpressionPart p1, ExpressionPart p2) {
@@ -16,8 +15,14 @@ public class CheckedAdd extends AbstractCheckedOperation implements ExpressionPa
         return "+";
     }
 
-    public long calc(int num1, int num2) {
-        return (long)num1 + (long)num2;
+    public int calc(int num1, int num2) {
+        if ((num1 < 0 && num2 < 0) && ((Integer.MIN_VALUE - num1) > num2)) {
+            throw new RuntimeException("overflow");
+        }
+        if ((num1 > 0 && num2 > 0) && ((Integer.MAX_VALUE - num1) < num2)) {
+            throw new RuntimeException("overflow");
+        }
+        return num1 + num2;
     }
 
 }

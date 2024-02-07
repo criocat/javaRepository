@@ -1,7 +1,6 @@
 package expression.exceptions;
 
-import java.math.BigDecimal;
-import expression.*;
+import expression.ExpressionPart;
 
 public class Min extends AbstractCheckedOperation implements ExpressionPart {
     public Min(ExpressionPart p1, ExpressionPart p2) {
@@ -9,15 +8,15 @@ public class Min extends AbstractCheckedOperation implements ExpressionPart {
     }
 
     public int getPrior() {
-        return 6;
+        return 9;
     }
 
     public String getOperation() {
         return "min";
     }
 
-    public long calc(int num1, int num2) {
-        return Math.min((long)num1, (long)num2);
+    public int calc(int num1, int num2) {
+        return Math.min(num1, num2);
     }
 
 }

@@ -1,10 +1,23 @@
 package expression;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class Variable implements ExpressionPart {
     private final String str;
+    int posInList;
     public Variable(String str) {
+        this.str = str;
+        posInList = -1;
+    }
+
+    public Variable(int posInList) {
+        this.posInList = posInList;
+        this.str = null;
+    }
+
+    public Variable(String str, int posInList) {
+        this.posInList = posInList;
         this.str = str;
     }
     public int evaluate(int x) {
@@ -22,6 +35,11 @@ public class Variable implements ExpressionPart {
             return z;
         }
     }
+
+    public int evaluate(List<Integer> variables) {
+        return variables.get(posInList);
+    }
+
     public String toString() {
         return str;
     }

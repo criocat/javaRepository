@@ -1,11 +1,12 @@
 package expression.parser;
 
 import base.ExtendedRandom;
-import base.Tester;
 import base.TestCounter;
+import base.Tester;
 import base.Unit;
 import expression.ToMiniString;
 import expression.common.ExpressionKind;
+import expression.common.NodeRenderer;
 import expression.common.Renderer;
 import expression.common.TestGenerator;
 
@@ -21,6 +22,7 @@ public class ParserTester extends Tester {
     /* package-private */ final TestGenerator<Integer> generator;
     /* package-private */ final Renderer<Integer, Unit, ParserTestSet.TExpression> renderer;
     private final List<ParserTestSet.ParsedKind<?, ?>> kinds = new ArrayList<>();
+    /* package-private */  final List<NodeRenderer.Paren> parens = new ArrayList<>(List.of(NodeRenderer.paren("(", ")")));
 
     public ParserTester(final TestCounter counter) {
         super(counter);
@@ -60,5 +62,12 @@ public class ParserTester extends Tester {
 
     protected int cast(final long value) {
         return (int) value;
+    }
+
+    public void parens(final String... parens) {
+        assert parens.length % 2 == 0 : "Parens should come in pairs";
+        for (int i = 0; i < parens.length; i += 2) {
+            this.parens.add(NodeRenderer.paren(parens[i], parens[i + 1]));
+        }
     }
 }

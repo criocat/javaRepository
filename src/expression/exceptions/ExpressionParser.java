@@ -1,15 +1,16 @@
 package expression.exceptions;
 
 import expression.*;
-
-import java.io.PrintWriter;
-import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import expression.parser.Operation;
 
-public class ExpressionParser implements TripleParser {
+import java.math.BigDecimal;
+import java.util.List;
+
+public class ExpressionParser implements TripleParser, ListParser {
     private int pos;
     private String strExp;
+
+    private List<String> variables;
     private final char END = (char) -2;
 
     private void skip() {
@@ -49,7 +50,7 @@ public class ExpressionParser implements TripleParser {
     }
 
     private boolean expectedVariable() {
-        return take() == 'x' || take() == 'y' || take() == 'z';
+        return Character.isJavaIdentifierStart(take());
     }
 
     private boolean expectedWord(String word) {
@@ -68,9 +69,9 @@ public class ExpressionParser implements TripleParser {
                 expectedWord(">>") || expectedWord(">>>") || expectedWord("min") || expectedWord("max");
     }
 
-    private boolean expectUnarMinus() {
+    private boolean expectedUnaryMinus() {
         int lastPos = pos;
-        if(take() == '-' && !Character.isDigit(takeNext())) {
+        if (take() == '-' && !Character.isDigit(takeNext())) {
             skip();
             skipSpaces();
             boolean res = expectedPart();
@@ -80,8 +81,8 @@ public class ExpressionParser implements TripleParser {
         return false;
     }
 
-    private boolean expectedUnarOperation() {
-        return expectUnarMinus();
+    private boolean expectedUnaryOperation() {
+        return expectedUnaryMinus();
     }
 
     private boolean isBare(char endChar) {
@@ -94,6 +95,7 @@ public class ExpressionParser implements TripleParser {
         pos = lastPos;
         return res;
     }
+
     private String parseWord(char endChar) {
         StringBuilder str = new StringBuilder();
         while (!Character.isWhitespace(take()) && take() != endChar && take() != END) {
@@ -103,25 +105,25 @@ public class ExpressionParser implements TripleParser {
         return str.toString();
     }
 
-    private TripleExpression parsePartInUnarOperation(int len) throws Exception {
+    private ListExpression parsePartInUnaryOperation(int len) throws ParsingException {
         skip(len);
         skipSpaces();
-        TripleExpression e = null;
+        ListExpression e = null;
         if (expectedPart()) {
             e = parsePart();
         } else {
-            throw new Exception("expected part, but found \'" + take() + "\'");
+            throw new ParsingException("expected part, but found \'" + take() + "\'");
         }
         return e;
     }
 
 
-    private CheckedNegate parseUnarMinus() throws Exception {
-        return new CheckedNegate((ExpressionPart) parsePartInUnarOperation(1));
+    private CheckedNegate parseUnaryMinus() throws ParsingException {
+        return new CheckedNegate((ExpressionPart) parsePartInUnaryOperation(1));
     }
 
 
-    private Const parseConst() throws Exception {
+    private Const parseConst() throws ParsingException {
         boolean minus = (take() == '-');
         StringBuilder stringNum = new StringBuilder();
         if (minus) {
@@ -143,11 +145,11 @@ public class ExpressionParser implements TripleParser {
             }
         }
         if (overflow != 0) {
-            throw new Exception("Constant overflow " + overflow);
+            throw new ParsingException("Constant overflow " + overflow);
         }
         skipSpaces();
         if (expectedConst()) {
-            throw new Exception("Spaces in numbers");
+            throw new ParsingException("Spaces in numbers");
         }
         return new Const(val);
     }
@@ -158,33 +160,20 @@ public class ExpressionParser implements TripleParser {
             case '/' -> Operation.DIV;
             case '+' -> Operation.ADD;
             case '-' -> Operation.SUB;
-            default -> null;
+            case '<' -> Operation.MOVEL;
+            case '>' -> Operation.MOVER;
+            default -> Operation.MIN;
         };
-        if (res == null) {
-            if (expectedWord(">>>")) {
-                res = Operation.SMOVER;
-                skip(2);
-            }
-            else if (expectedWord(">>")) {
-                res = Operation.MOVER;
-                skip(1);
-            } else if (expectedWord("min")) {
-                res = Operation.MIN;
-                skip(2);
-            } else if (expectedWord("<<")) {
-                res = Operation.MOVEL;
-                skip(1);
-            }
-            else {
-                res = Operation.MAX;
-                skip(2);
-            }
+        if (expectedWord(">>>")) {
+            res = Operation.SMOVER;
+        } else if (expectedWord("max")) {
+            res = Operation.MAX;
         }
-        skip();
+        skip(res.getOperation().length());
         return res;
     }
 
-    private TripleExpression getResultOfOperation(TripleExpression first, TripleExpression second, Operation op) {
+    private ListExpression getResultOfOperation(ListExpression first, ListExpression second, Operation op) {
         return switch (op) {
             case Operation.ADD -> new CheckedAdd((ExpressionPart) first, (ExpressionPart) second);
             case Operation.SUB -> new CheckedSubtract((ExpressionPart) first, (ExpressionPart) second);
@@ -199,46 +188,57 @@ public class ExpressionParser implements TripleParser {
         };
     }
 
-    private Variable parseVariable() throws Exception {
+    private Variable parseVariable() throws ParsingException {
         StringBuilder var = new StringBuilder();
-        while (Character.isDigit(take()) || Character.isAlphabetic(take())) {
+        skipSpaces();
+        if (!Character.isJavaIdentifierStart(take())) {
+            throw new ParsingException("Start symbol");
+        }
+        while (Character.isJavaIdentifierPart(take())) {
             var.append(take());
             skip();
         }
         String str = var.toString();
-        if (!str.equals("x") && !str.equals("y") && !str.equals("z")) {
+        if (!variables.contains(str)) {
             if (take() == 'x' || take() == 'y' || take() == 'z') {
-                throw new Exception("Start symbol");
+                throw new ParsingException("End symbol");
             } else {
-                throw new Exception("End symbol");
+                throw new ParsingException("Start symbol");
             }
         }
-        return new Variable(str);
+        int curpos = -1;
+        for (int i = 0; i < variables.size(); ++i) {
+            if (variables.get(i).equals(str)) {
+                curpos = i;
+                break;
+            }
+        }
+        return new Variable(str, curpos);
     }
 
 
     private boolean expectedBracket() {
-        return take() == '(';
+        return isOpenBracket(take());
     }
 
     private boolean expectedPart() {
-        return expectedConst() || expectedVariable() || expectedUnarOperation() || expectedBracket();
+        return expectedConst() || expectedVariable() || expectedUnaryOperation() || expectedBracket();
     }
 
-    private TripleExpression parseUnarOperation() throws Exception {
+    private ListExpression parseUnaryOperation() throws ParsingException {
         skipSpaces();
-        if (expectUnarMinus()) {
-            return parseUnarMinus();
+        if (expectedUnaryMinus()) {
+            return parseUnaryMinus();
         } else {
-            throw new Exception("expected part, but found \'" + take() + "\'");
+            throw new ParsingException("expected part, but found '" + take() + "'");
         }
     }
 
-    private TripleExpression parsePart() throws Exception {
+    private ListExpression parsePart() throws ParsingException {
         if (expectedConst()) {
             return parseConst();
-        } else if (expectedUnarOperation()) {
-            return parseUnarOperation();
+        } else if (expectedUnaryOperation()) {
+            return parseUnaryOperation();
         } else if (expectedVariable()) {
             return parseVariable();
         } else {
@@ -246,30 +246,35 @@ public class ExpressionParser implements TripleParser {
         }
     }
 
-    private TripleExpression parseBracket() throws Exception {
+    private boolean isOpenBracket(char c) {
+        return c == '(' || c == '[' || c == '{';
+    }
+
+    private boolean isCloseBracket(char c) {
+        return c == ')' || c == ']' || c == '}';
+    }
+
+    private ListExpression parseBracket() throws ParsingException {
+        char b = take();
+        char revb = switch (b) {
+            case '(' -> ')';
+            case '[' -> ']';
+            case '{' -> '}';
+            default -> END;
+        };
         skip();
-        TripleExpression res = parseExpression(')', -1);
+        ListExpression res = parseExpression(revb, -1);
         skip();
         return res;
     }
 
-    private TripleExpression parseExpression(char endChar, int prior) throws Exception {
+    private ListExpression parseExpression(char endChar, int prior) throws ParsingException {
         skipSpaces();
-        TripleExpression secondPart = null, lastPart = null;
+        ListExpression secondPart = null, lastPart = null;
         if (expectedPart()) {
             lastPart = parsePart();
         } else {
-            if (endChar == ')' && take() == ')') {
-                throw new Exception("Empty Brackets");
-            }
-            if (isBare(endChar)) {
-                String str = parseWord(endChar);
-                throw new Exception("Bare " + str);
-            }
-            if (expectedOperation()) {
-                throw new Exception("No first argument");
-            }
-            throw new Exception("Start symbol");
+            throwExceptionBeforeParsing(endChar);
         }
         skipSpaces();
         while (expectedOperation()) {
@@ -285,35 +290,63 @@ public class ExpressionParser implements TripleParser {
                     lastPart = getResultOfOperation(lastPart, secondPart, op);
                     skipSpaces();
                 } else {
-                    if (expectedOperation()) {
-                        throw new Exception("No middle argument");
-                    } else if (take() == endChar) {
-                        throw new Exception("No last argument");
-                    }
-                    throw new Exception("expected part, but found \'" + take() + "\'");
+                    throwExceptionInParsing(endChar);
                 }
             }
         }
         skipSpaces();
         if (take() != endChar) {
-            if (take() == ')') {
-                throw new Exception("No opening parenthesis");
-            } else if (take() == END) {
-                throw new Exception("No closing parenthesis");
-            }
-            skip();
-            skipSpaces();
-            if (take() == endChar) {
-                throw new Exception("End symbol");
-            }
-            else {
-                throw new Exception("Middle symbol");
-            }
+            throwExceptionAfterParsing(endChar);
         }
         return lastPart;
     }
 
-    public TripleExpression parse(String str) throws Exception {
+    private void throwExceptionInParsing(char endChar) throws ParsingException {
+        if (expectedOperation()) {
+            throw new ParsingException("No middle argument");
+        } else if (take() == endChar) {
+            throw new ParsingException("No last argument");
+        }
+        throw new ParsingException("expected part, but found '" + take() + "'");
+    }
+
+    private void throwExceptionAfterParsing(char endChar) throws ParsingException {
+        if (!isCloseBracket(endChar) && isCloseBracket(take())) {
+            throw new ParsingException("No opening parenthesis");
+        } else if (isCloseBracket(endChar) && isCloseBracket(take())) {
+            throw new ParsingException("incorrect closing parenthesis");
+        } else if (take() == END) {
+            throw new ParsingException("No closing parenthesis");
+        }
+        skip();
+        skipSpaces();
+        if (take() == endChar) {
+            throw new ParsingException("End symbol");
+        } else {
+            throw new ParsingException("Middle symbol");
+        }
+    }
+
+    private void throwExceptionBeforeParsing(char endChar) throws ParsingException {
+        if (endChar == ')' && take() == ')') {
+            throw new ParsingException("Empty Brackets");
+        }
+        if (isBare(endChar)) {
+            String str = parseWord(endChar);
+            throw new ParsingException("Bare " + str);
+        }
+        if (expectedOperation()) {
+            throw new ParsingException("No first argument");
+        }
+        throw new ParsingException("Start symbol");
+    }
+
+    public TripleExpression parse(String str) throws ParsingException {
+        return (ExpressionPart) parse(str, List.of("x", "y", "z"));
+    }
+
+    public ListExpression parse(String str, List<String> variables) throws ParsingException {
+        this.variables = variables;
         strExp = str;
         pos = 0;
         return parseExpression(END, -1);

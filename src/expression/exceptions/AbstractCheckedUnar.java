@@ -1,14 +1,16 @@
 package expression.exceptions;
 
 import expression.ExpressionPart;
+import expression.IntPair;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public abstract class AbstractCheckedUnar {
-    private ExpressionPart val;
+    private ExpressionPart exp;
 
-    public AbstractCheckedUnar(ExpressionPart val) {
-        this.val = val;
+    public AbstractCheckedUnar(ExpressionPart exp) {
+        this.exp = exp;
     }
 
     public String toString() {
@@ -18,18 +20,18 @@ public abstract class AbstractCheckedUnar {
     }
     public void toString(StringBuilder strBuilder) {
         strBuilder.append(getOperation()).append("(");
-        val.toString(strBuilder);
+        exp.toString(strBuilder);
         strBuilder.append(")");
     }
     public void toMiniString(StringBuilder res) {
-        int prior = val.getPrior();
+        int prior = exp.getPrior();
         if (prior == 0) {
             res.append(getOperation()).append(" ");
-            val.toMiniString(res);
+            exp.toMiniString(res);
         }
         else {
             res.append(getOperation()).append("(");
-            val.toMiniString(res);
+            exp.toMiniString(res);
             res.append(")");
         }
     }
@@ -45,22 +47,16 @@ public abstract class AbstractCheckedUnar {
 
     public int hashCode() {
         int mod = 1000000007;
-        return (int) ((long) val.hashCode() + getOperation().hashCode()) % mod;
+        return (int) ((long) exp.hashCode() + getOperation().hashCode()) % mod;
     }
 
-    abstract protected long evaluateByNum(int num);
-
-    private int evaluateByRes(int res) {
-        long val = evaluateByNum(res);
-        if (val > Integer.MAX_VALUE || val < Integer.MIN_VALUE) {
-            throw new RuntimeException("overflow");
-        }
-        return (int)val;
-    }
+    abstract protected int calc(int num);
 
     public int evaluate(int x) {
-        return evaluateByRes(val.evaluate(x));
+        return calc(exp.evaluate(x));
     }
+
+
 
     public BigDecimal evaluate(BigDecimal x) {
         return BigDecimal.valueOf(evaluate(x.intValue()));
@@ -70,12 +66,16 @@ public abstract class AbstractCheckedUnar {
 
 
     public int evaluate(int x, int y, int z) {
-        return evaluateByRes(val.evaluate(x, y, z));
+        return calc(exp.evaluate(x, y, z));
+    }
+
+    public int evaluate(List<Integer> variables) {
+        return calc(exp.evaluate(variables));
     }
 
     public boolean equals(Object object) {
         if (object != null && object.getClass() == this.getClass()) {
-            return val.equals((ExpressionPart) object);
+            return exp.equals((ExpressionPart) object);
         }
         return false;
     }
