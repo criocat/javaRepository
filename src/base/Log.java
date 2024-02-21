@@ -51,7 +51,7 @@ public class Log {
     }
 
     public void format(final String format, final Object... args) {
-        println(String.format(format,args));
+        println(String.format(format, args));
     }
 
     private String indent() {

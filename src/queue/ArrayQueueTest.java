@@ -1,14 +1,44 @@
 package queue;
 
-public class ArrayQueueTest {
+import base.Selector;
+import base.TestCounter;
 
-    public static void main(String[] args) {
-        ArrayQueue q = new ArrayQueue();
-        for (int i = 0; i < 10; ++i) {
-            q.enqueue("number " + i);
-        }
-        while(!q.isEmpty()) {
-            System.out.println(q.size() + " " + q.element() + " " + q.dequeue());
-        }
+import java.util.List;
+import java.util.function.Consumer;
+
+import static queue.Queues.*;
+
+/**
+ * @author Georgiy Korneev (kgeorgiy@kgeorgiy.info)
+ */
+public final class ArrayQueueTest {
+    public static final Selector SELECTOR = new Selector(ArrayQueueTest.class)
+            .variant("Base", variant(QueueModel.class, d -> () -> d))
+            .variant("DequeCountIf", variant(DequeCountIfModel.class, (DequeChecker<DequeCountIfModel>) d -> () -> d, DEQUE_COUNT_IF))
+            .variant("DequeIndexIf", variant(DequeIndexIfModel.class, (DequeChecker<DequeIndexIfModel>) d -> () -> d, DEQUE_INDEX_IF))
+            ;
+
+    private ArrayQueueTest() {
+    }
+
+    public static void main(final String... args) {
+        SELECTOR.main(args);
+    }
+
+    /* package-private */
+    static <M extends QueueModel> Consumer<TestCounter> variant(
+            final Class<M> type,
+            final QueueChecker<M> tester,
+            final Splitter<M> splitter
+    ) {
+        return new ArrayQueueTester<>(type, tester, splitter)::test;
+    }
+
+    /* package-private */
+    static <M extends QueueModel> Consumer<TestCounter> variant(
+            final Class<M> type,
+            final QueueChecker<M> tester
+    ) {
+        return variant(type, tester, (t, q, r) -> List.of());
     }
 }

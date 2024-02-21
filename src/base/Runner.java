@@ -141,7 +141,7 @@ public interface Runner {
 //            final AtomicReference<String> prev = new AtomicReference<>("");
             return (counter, input) -> {
                 final int total = input.stream().mapToInt(String::length).sum() + input.size() * 3;
-                final String comment = total <= 1000
+                final String comment = total <= 300
                         ? input.stream().collect(Collectors.joining("\" \"", "\"", "\""))
                         : input.size() <= 100
                         ? String.format("[%d arguments, sizes: %s]", input.size(), input.stream()
