@@ -129,7 +129,7 @@ public class TestCounter extends Log {
     public <T> T fail(final Throwable throwable, final String format, final Object... args) {
         final String message = String.format(format, args);
         println("ERROR: " + message);
-        throw throwable instanceof Error ? (Error) throwable : new AssertionError(throwable);
+        throw throwable instanceof Error err ? err : new AssertionError(throwable);
     }
 
     public void checkTrue(final boolean condition, final String message, final Object... args) {

@@ -83,7 +83,7 @@ public class ArrayQueueTester<M extends Queues.QueueModel> {
     }
 
     private static List<Object> toList(final Queues.QueueModel queue) {
-        final List<Object> list = Stream.generate(queue::dequeue).limit(queue.size()).collect(Collectors.toUnmodifiableList());
+        final List<Object> list = Stream.generate(queue::dequeue).limit(queue.size()).toList();
         list.forEach(queue::enqueue);
         return list;
     }
@@ -152,8 +152,8 @@ public class ArrayQueueTester<M extends Queues.QueueModel> {
 
         @Override
         protected void checkResult(final String call, final Object expected, final Object actual) {
-            if (expected instanceof Queues.QueueModel) {
-                super.checkResult(call, toList((Queues.QueueModel) expected), toList((Queues.QueueModel) actual));
+            if (expected instanceof Queues.QueueModel model) {
+                super.checkResult(call, toList(model), toList((Queues.QueueModel) actual));
             } else {
                 super.checkResult(call, expected, actual);
             }

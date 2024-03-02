@@ -69,7 +69,7 @@ public class ReflectionTest {
     }
 
 
-    enum Mode {
+    protected enum Mode {
         MODULE("Module") {
             @Override
             IMethod lookupMethod(final Class<?> type, final Method method) {
@@ -130,6 +130,7 @@ public class ReflectionTest {
             final String className = baseName + suffix;
             try {
                 final URL url = Paths.get(".").toUri().toURL();
+                //noinspection resource
                 return new URLClassLoader(new URL[]{url}).loadClass(className);
             } catch (final MalformedURLException e) {
                 throw new AssertionError("Cannot load classes from .", e);
@@ -145,7 +146,7 @@ public class ReflectionTest {
         private final Constructor<?> constructor;
         protected final Class<?> implementation;
 
-        public ProxyFactory(final Class<T> type, final Mode mode, final String baseName) {
+        protected ProxyFactory(final Class<T> type, final Mode mode, final String baseName) {
             implementation = mode.loadClass(baseName);
             try {
                 constructor = implementation.getConstructor();

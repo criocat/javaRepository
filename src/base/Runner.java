@@ -125,7 +125,7 @@ public interface Runner {
                 }
                 throw Asserts.error(
                         "Could not find neither of classes %s",
-                        packages.stream().map(pkg -> getClassName(pkg, className)).collect(Collectors.toUnmodifiableList())
+                        packages.stream().map(pkg -> getClassName(pkg, className)).toList()
                 );
             } catch (final MalformedURLException e) {
                 throw Asserts.error("Invalid path", e);

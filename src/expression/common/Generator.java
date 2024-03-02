@@ -43,11 +43,11 @@ public class Generator<C> {
             return random.nextBoolean() ? random.randomItem(variables) : Node.constant(constant.get());
         } else {
             final Op<Integer> op = random.randomItem(ops);
-            if (op.value == 1) {
-                return Node.op(op.name, unary.get());
+            if (op.value() == 1) {
+                return Node.op(op.name(), unary.get());
             } else {
                 final Pair<Node<C>, Node<C>> pair = binary.get();
-                return Node.op(op.name, pair.first(), pair.second());
+                return Node.op(op.name(), pair.first(), pair.second());
             }
         }
     }
@@ -87,7 +87,7 @@ public class Generator<C> {
         testRandom(counter, variables, consumer, 4, 777 / d, 1, this::generatePartialDepth);
     }
 
-    private <C, E> void testRandom(
+    private <E> void testRandom(
             final TestCounter counter,
             final ExpressionKind.Variables<E> variables,
             final Consumer<Expr<C, E>> consumer,

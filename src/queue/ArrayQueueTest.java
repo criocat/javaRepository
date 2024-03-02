@@ -14,6 +14,8 @@ import static queue.Queues.*;
 public final class ArrayQueueTest {
     public static final Selector SELECTOR = new Selector(ArrayQueueTest.class)
             .variant("Base", variant(QueueModel.class, d -> () -> d))
+            .variant("CountIf", variant(CountIfModel.class, d -> () -> d, COUNT_IF))
+            .variant("IndexIf", variant(IndexIfModel.class, d -> () -> d, INDEX_IF))
             .variant("DequeCountIf", variant(DequeCountIfModel.class, (DequeChecker<DequeCountIfModel>) d -> () -> d, DEQUE_COUNT_IF))
             .variant("DequeIndexIf", variant(DequeIndexIfModel.class, (DequeChecker<DequeIndexIfModel>) d -> () -> d, DEQUE_INDEX_IF))
             ;

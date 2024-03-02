@@ -45,10 +45,10 @@ public final class Functional {
                         List.of(List.of()),
                         (prev, next) -> next.stream()
                                 .flatMap(value -> prev.stream().map(list -> append(list, value)))
-                                .collect(Collectors.toUnmodifiableList()),
+                                .toList(),
                         (prev, next) -> next.stream()
                                 .flatMap(suffix -> prev.stream().map(prefix -> concat(prefix, suffix)))
-                                .collect(Collectors.toUnmodifiableList())
+                                .toList()
                 );
     }
 

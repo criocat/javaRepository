@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -77,7 +76,7 @@ public final class ExtendedRandom {
     }
 
     public  <T> List<T> random(final int list, final Function<ExtendedRandom, T> generator) {
-        return Stream.generate(() -> generator.apply(this)).limit(list).collect(Collectors.toUnmodifiableList());
+        return Stream.generate(() -> generator.apply(this)).limit(list).toList();
     }
 
     public double nextDouble() {

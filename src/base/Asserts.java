@@ -73,8 +73,8 @@ public final class Asserts {
 
     public static AssertionError error(final String format, final Object... args) {
         final String message = String.format(format, args);
-        return args.length > 0 && args[args.length - 1] instanceof Throwable
-               ? new AssertionError(message, (Throwable) args[args.length - 1])
+        return args.length > 0 && args[args.length - 1] instanceof Throwable e
+               ? new AssertionError(message, e)
                : new AssertionError(message);
     }
 

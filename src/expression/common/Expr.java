@@ -10,23 +10,7 @@ import java.util.function.Function;
 /**
  * @author Georgiy Korneev (kgeorgiy@kgeorgiy.info)
  */
-public class Expr<C, V> {
-    private final Node<C> node;
-    private final List<Pair<String, V>> variables;
-
-    public Expr(final Node<C> node, final List<Pair<String, V>> variables) {
-        this.node = node;
-        this.variables = variables;
-    }
-
-    public Node<C> node() {
-        return node;
-    }
-
-    public List<Pair<String, V>> variables() {
-        return variables;
-    }
-
+public record Expr<C, V>(Node<C> node, List<Pair<String, V>> variables) {
     public <T> List<Pair<String, T>> variables(final BiFunction<String, V, T> f) {
         return Functional.map(
                 variables,

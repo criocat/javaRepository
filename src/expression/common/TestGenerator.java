@@ -23,7 +23,6 @@ public class TestGenerator<C> {
     private final Generator<C> generator;
     private final NodeRenderer<C> renderer;
 
-    private final Set<String> forbidden = new HashSet<>();
     private final List<Function<List<Node<C>>, Stream<Node<C>>>> basicTests = new ArrayList<>();
     private final List<Node<C>> consts;
     private final boolean verbose;
@@ -75,7 +74,6 @@ public class TestGenerator<C> {
     public void unary(final String name) {
         generator.add(name, 1);
         renderer.unary(name);
-        forbidden.add(name);
 
         if (verbose) {
             basicTests.add(vars -> Stream.concat(consts.stream(), vars.stream()).map(a -> f(name, a)));
@@ -101,7 +99,6 @@ public class TestGenerator<C> {
     public void binary(final String name, final int priority) {
         generator.add(name, 2);
         renderer.binary(name, priority);
-        forbidden.add(name);
 
         if (verbose) {
             basicTests.add(vars -> Stream.concat(consts.stream(), vars.stream().limit(3))

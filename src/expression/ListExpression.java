@@ -7,7 +7,6 @@ import expression.common.ExpressionKind;
 import expression.common.Type;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -22,7 +21,7 @@ public interface ListExpression extends ToMiniString {
             ListExpression.class,
             (r, c) -> IntStream.range(0, c)
                     .mapToObj(name -> Pair.<String, ListExpression>of("$" + name, new Variable(name)))
-                    .collect(Collectors.toUnmodifiableList()),
+                    .toList(),
             (expr, variables, values) -> expr.evaluate(values)
     );
 

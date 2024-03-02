@@ -22,7 +22,7 @@ import static base.Asserts.assertTrue;
  * @author Georgiy Korneev (kgeorgiy@kgeorgiy.info)
  */
 public class ExpressionTester<E extends ToMiniString, C> extends Tester {
-    private final List<Integer> VALUES = IntStream.rangeClosed(-10, 10).boxed().collect(Collectors.toUnmodifiableList());
+    private final List<Integer> VALUES = IntStream.rangeClosed(-10, 10).boxed().toList();
     private final ExpressionKind<E, C> kind;
 
     private final List<Test> basic = new ArrayList<>();
@@ -79,8 +79,8 @@ public class ExpressionTester<E extends ToMiniString, C> extends Tester {
         final String expressionToString = Objects.requireNonNull(expression.toString());
         for (final Pair<ToMiniString, String> pair : prev) {
             counter.test(() -> {
-                final ToMiniString prev = pair.first;
-                final String prevToString = pair.second;
+                final ToMiniString prev = pair.first();
+                final String prevToString = pair.second();
                 final boolean equals = prevToString.equals(expressionToString);
                 assertTrue("Equals to " + prevToString, prev.equals(expression) == equals);
                 assertTrue("Equals to " + prevToString, expression.equals(prev) == equals);
@@ -244,7 +244,7 @@ public class ExpressionTester<E extends ToMiniString, C> extends Tester {
                 final List<String> names = Functional.map(variables, Pair::first);
                 final List<C> values = Stream.generate(() -> kind.randomValue(random()))
                         .limit(variables.size())
-                        .collect(Collectors.toUnmodifiableList());
+                        .toList();
 
                 checkEqualsAndToString(full, mini, actual, copy.render(Unit.INSTANCE, expr));
                 check(full, expected, actual, names, values);

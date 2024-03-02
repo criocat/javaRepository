@@ -7,7 +7,10 @@ import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * @author Georgiy Korneev (kgeorgiy@kgeorgiy.info)
@@ -16,7 +19,7 @@ public final class Queues {
     private Queues() {
     }
 
-    /* package-private */ interface QueueModel {
+    protected interface QueueModel {
         @ReflectionTest.Ignore
         ArrayDeque<Object> model();
 
@@ -45,7 +48,7 @@ public final class Queues {
         }
     }
 
-    /* package-private */ interface QueueChecker<T extends QueueModel> {
+    protected interface QueueChecker<T extends QueueModel> {
         T wrap(ArrayDeque<Object> reference);
 
         default List<T> linearTest(final T queue, final ExtendedRandom random) {
@@ -76,7 +79,7 @@ public final class Queues {
     }
 
     @FunctionalInterface
-    /* package-private */ interface Splitter<M extends QueueModel> {
+    protected interface Splitter<M extends QueueModel> {
         List<M> split(final QueueChecker<? extends M> tester, final M queue, final ExtendedRandom random);
     }
 
@@ -238,4 +241,41 @@ public final class Queues {
     }
 
     /* package-private */ static final LinearTester<DequeIndexIfModel> DEQUE_INDEX_IF = INDEX_IF::test;
+
+    // === FlatMap
+
+    /* package-private */ interface FlatMapModel extends QueueModel {
+        @ReflectionTest.Wrap
+        default FlatMapModel flatMap(final Function<Object, List<Object>> f) {
+            final ArrayDeque<Object> deque = model().stream().flatMap(f.andThen(List::stream)).collect(Collectors.toCollection(ArrayDeque::new));
+            return () -> deque;
+        }
+    }
+
+    /* package-private */ static final Splitter<FlatMapModel> FLAT_MAP = (tester, queue, random) ->
+            List.of(tester.cast(queue.flatMap(value -> switch (Math.abs(value.hashCode() % 5)) {
+                case 0 -> List.of();
+                case 1 -> List.of(value);
+                case 2 -> List.of(value, value);
+                case 3 -> List.of("value");
+                case 4 -> List.of(value, "value");
+                default -> throw new AssertionError("Invalid variant");
+            })));
+
+
+    // === Reduce
+
+    /* package-private */ interface ReduceModel extends QueueModel {
+        default Object reduce(final Object init, final BinaryOperator<Object> op) {
+            return model().stream().reduce(init, op);
+        }
+    }
+
+    /* package-private */ static final LinearTester<ReduceModel> REDUCE = (tester, queue, random) -> {
+        if (random.nextBoolean()) {
+            queue.reduce("", (a, b) -> a.toString() + ", " + b.toString());
+        } else {
+            queue.reduce(0, (a, b) -> a.hashCode() + b.hashCode());
+        }
+    };
 }

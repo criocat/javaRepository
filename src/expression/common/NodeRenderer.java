@@ -133,17 +133,9 @@ public class NodeRenderer<C> {
     }
 
     // :NOTE: Especially ugly bit-fiddling, do not replicate
-    private static final class Priority {
+    private record Priority(String op, int priority) {
         private static final int Q = 3;
         private static final Priority MAX = new Priority("MAX", Integer.MAX_VALUE - Q);
-        private final String op;
-
-        private final int priority;
-
-        public Priority(final String op, final int priority) {
-            this.op = op;
-            this.priority = priority;
-        }
 
         private int compareLevels(final Priority that) {
             return (priority | Q) - (that.priority | Q);

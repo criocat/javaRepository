@@ -43,10 +43,10 @@ public class ExceptionsTestSet<E extends ToMiniString, C> extends ParserTestSet<
         final ExpressionParser parser = new ExpressionParser();
         counter.testForEach(parsingTest, op -> {
             try {
-                parser.parse(op.value);
-                counter.fail("Successfully parsed %s", op.value);
+                parser.parse(op.value());
+                counter.fail("Successfully parsed %s", op.value());
             } catch (final Exception e) {
-                counter.format("%-30s %s%n", op.name, e.getClass().getSimpleName() + ": " + e.getMessage());
+                counter.format("%-30s %s%n", op.name(), e.getClass().getSimpleName() + ": " + e.getMessage());
             }
         });
     }

@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author Georgiy Korneev (kgeorgiy@kgeorgiy.info)
@@ -46,7 +45,7 @@ public final class Selector {
 
             final List<String> vars = Arrays.stream(args).skip(modes.isEmpty() ? 0 : 1)
                     .flatMap(arg -> Arrays.stream(arg.split("[ +]+")))
-                    .collect(Collectors.toUnmodifiableList());
+                    .toList();
 
             test(mode, vars);
         } catch (final IllegalArgumentException e) {

@@ -4,18 +4,12 @@ import java.util.ArrayList;
 public class test1 {
 
 
-    interface aaa {
 
+    public class foo<T> {
+        public abstract T addone(T number);
     }
 
-    static class bbb implements aaa {
-        int a = 10;
-        public bbb() {}
-    }
+    public static void main(String[] args) {>
 
-    public static void main(String[] args) {
-        aaa obj = new bbb();
-        Class cl = obj.getClass();
-        System.out.println(cl);
     }
 }
