@@ -4,20 +4,30 @@ package expression;
 
 import java.util.Scanner;
 
-import expression.exceptions.ExpressionParser;
-import expression.exceptions.TripleParser;
+import expression.generic.*;
 
 public class Main {
 
     public static void main(String[] args) {
-        ExpressionPart e = new Add(new Subtract(new Multiply(new Variable("x"), new Variable("x")), new Multiply(new Const(2), new Variable("x"))), new Const(1));
-        TripleParser p = new ExpressionParser();
-        try {
-        TripleExpression exp = p.parse("+228");
-        System.out.println(((ExpressionPart)exp).toString());
+        if (args.length < 2) {
+            System.out.println("not enough arguments");
+            return;
         }
-        catch (Exception ec) {
-            System.out.println(ec.getMessage());
+        try {
+            Object[][][] array = new GenericTabulator().tabulate(args[0], args[1], -2, 2, -2, 2, -2, 2);
+            for (int i = 0; i < 5; ++i) {
+                for (int j = 0; j < 5; ++j) {
+                    for (int k = 0; k < 5; ++k) {
+                        if (array[i][j][k] != null) {
+                            System.out.println((i - 2) + " " + (j - 2) + " " + (k - 2) + ": " + array[i][j][k].toString());
+                        } else {
+                            System.out.println("null");
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 }

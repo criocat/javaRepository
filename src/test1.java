@@ -1,15 +1,14 @@
 import java.lang.reflect.Array;
+import java.math.BigInteger;
 import java.util.ArrayList;
 
 public class test1 {
 
 
 
-    public class foo<T> {
-        public abstract T addone(T number);
-    }
-
-    public static void main(String[] args) {>
-
+    public static void main(String[] args) {
+        BigInteger s = BigInteger.valueOf(Integer.MAX_VALUE);
+        s = s.multiply(BigInteger.valueOf(Integer.MIN_VALUE));
+        System.out.printf(s.toString());
     }
 }

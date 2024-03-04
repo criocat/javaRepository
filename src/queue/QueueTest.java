@@ -14,6 +14,8 @@ import static queue.Queues.*;
 public final class QueueTest {
     public static final Selector SELECTOR = new Selector(QueueTest.class)
             .variant("Base", variant(QueueModel.class, d -> () -> d))
+            .variant("Dedup", variant(DedupModel.class, d -> () -> d, DEDUP))
+            .variant("Distinct", variant(DistinctModel.class, d -> () -> d, DISTINCT))
             .variant("FlatMap", variant(FlatMapModel.class, d -> () -> d, FLAT_MAP))
             .variant("Reduce", variant(ReduceModel.class, d -> () -> d, REDUCE))
             ;
@@ -28,7 +30,7 @@ public final class QueueTest {
     /* package-private */ static <M extends QueueModel, T extends QueueChecker<M>> Consumer<TestCounter> variant(
             final Class<M> type,
             final T tester,
-            final Splitter<M> splitter
+            final Queues.Splitter<M> splitter
     ) {
         return new QueueTester<>(type, tester, splitter)::test;
     }

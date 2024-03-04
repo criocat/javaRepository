@@ -13,7 +13,7 @@ import static queue.Queues.*;
  */
 public final class ArrayQueueTest {
     public static final Selector SELECTOR = new Selector(ArrayQueueTest.class)
-            .variant("Base", variant(QueueModel.class, d -> () -> d))
+            .variant("Base", variant(Queues.QueueModel.class, d -> () -> d))
             .variant("CountIf", variant(CountIfModel.class, d -> () -> d, COUNT_IF))
             .variant("IndexIf", variant(IndexIfModel.class, d -> () -> d, INDEX_IF))
             .variant("DequeCountIf", variant(DequeCountIfModel.class, (DequeChecker<DequeCountIfModel>) d -> () -> d, DEQUE_COUNT_IF))
@@ -28,18 +28,18 @@ public final class ArrayQueueTest {
     }
 
     /* package-private */
-    static <M extends QueueModel> Consumer<TestCounter> variant(
+    static <M extends Queues.QueueModel> Consumer<TestCounter> variant(
             final Class<M> type,
-            final QueueChecker<M> tester,
-            final Splitter<M> splitter
+            final Queues.QueueChecker<M> tester,
+            final Queues.Splitter<M> splitter
     ) {
         return new ArrayQueueTester<>(type, tester, splitter)::test;
     }
 
     /* package-private */
-    static <M extends QueueModel> Consumer<TestCounter> variant(
+    static <M extends Queues.QueueModel> Consumer<TestCounter> variant(
             final Class<M> type,
-            final QueueChecker<M> tester
+            final Queues.QueueChecker<M> tester
     ) {
         return variant(type, tester, (t, q, r) -> List.of());
     }

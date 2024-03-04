@@ -3,14 +3,13 @@ package queue;
 import base.ExtendedRandom;
 
 import java.lang.reflect.Field;
-import java.util.ArrayDeque;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Georgiy Korneev (kgeorgiy@kgeorgiy.info)
@@ -244,7 +243,7 @@ public final class Queues {
 
     // === FlatMap
 
-    /* package-private */ interface FlatMapModel extends QueueModel {
+    /* package-private */ interface FlatMapModel extends Queues.QueueModel {
         @ReflectionTest.Wrap
         default FlatMapModel flatMap(final Function<Object, List<Object>> f) {
             final ArrayDeque<Object> deque = model().stream().flatMap(f.andThen(List::stream)).collect(Collectors.toCollection(ArrayDeque::new));
@@ -252,7 +251,7 @@ public final class Queues {
         }
     }
 
-    /* package-private */ static final Splitter<FlatMapModel> FLAT_MAP = (tester, queue, random) ->
+    /* package-private */ static final Queues.Splitter<FlatMapModel> FLAT_MAP = (tester, queue, random) ->
             List.of(tester.cast(queue.flatMap(value -> switch (Math.abs(value.hashCode() % 5)) {
                 case 0 -> List.of();
                 case 1 -> List.of(value);
@@ -262,20 +261,48 @@ public final class Queues {
                 default -> throw new AssertionError("Invalid variant");
             })));
 
-
     // === Reduce
 
-    /* package-private */ interface ReduceModel extends QueueModel {
+    /* package-private */ interface ReduceModel extends Queues.QueueModel {
         default Object reduce(final Object init, final BinaryOperator<Object> op) {
             return model().stream().reduce(init, op);
         }
     }
 
-    /* package-private */ static final LinearTester<ReduceModel> REDUCE = (tester, queue, random) -> {
+    /* package-private */ static final Queues.LinearTester<ReduceModel> REDUCE = (tester, queue, random) -> {
         if (random.nextBoolean()) {
             queue.reduce("", (a, b) -> a.toString() + ", " + b.toString());
         } else {
             queue.reduce(0, (a, b) -> a.hashCode() + b.hashCode());
         }
     };
+
+    // === Dedup
+
+    /* package-private */ interface DedupModel extends Queues.QueueModel {
+        default void dedup() {
+            Object prev = null;
+            for (final Iterator<Object> it = model().iterator(); it.hasNext(); ) {
+                final Object next = it.next();
+                if (next.equals(prev)) {
+                    it.remove();
+                } else {
+                    prev = next;
+                }
+            }
+        }
+    }
+
+    /* package-private */ static final Queues.LinearTester<DedupModel> DEDUP = (tester, queue, random) -> queue.dedup();
+
+    // === Distinct
+
+    /* package-private */ interface DistinctModel extends Queues.QueueModel {
+        default void distinct() {
+            model().removeIf(Predicate.not(new HashSet<>()::add));
+        }
+    }
+
+    /* package-private */ static final Queues.LinearTester<DistinctModel> DISTINCT = (tester, queue, random) -> queue.distinct();
+
 }
