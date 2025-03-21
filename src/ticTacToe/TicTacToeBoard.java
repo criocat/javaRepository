@@ -3,9 +3,7 @@ package ticTacToe;
 import java.util.Arrays;
 import java.util.Map;
 
-/**
- * @author Georgiy Korneev (kgeorgiy@kgeorgiy.info)
- */
+
 public class TicTacToeBoard implements Board, Position {
     private static final Map<Cell, Character> SYMBOLS = Map.of(
             Cell.X, 'X',

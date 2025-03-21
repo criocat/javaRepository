@@ -3,9 +3,6 @@ package ticTacToe;
 import java.io.PrintStream;
 import java.util.Scanner;
 
-/**
- * @author Georgiy Korneev (kgeorgiy@kgeorgiy.info)
- */
 public class HumanPlayer implements Player {
     private final PrintStream out;
     private final Scanner in;

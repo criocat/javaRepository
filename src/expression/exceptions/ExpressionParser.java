@@ -175,15 +175,15 @@ public class ExpressionParser implements TripleParser, ListParser {
 
     private ListExpression getResultOfOperation(ListExpression first, ListExpression second, Operation op) {
         return switch (op) {
-            case Operation.ADD -> new CheckedAdd((ExpressionPart) first, (ExpressionPart) second);
-            case Operation.SUB -> new CheckedSubtract((ExpressionPart) first, (ExpressionPart) second);
-            case Operation.MUL -> new CheckedMultiply((ExpressionPart) first, (ExpressionPart) second);
-            case Operation.DIV -> new CheckedDivide((ExpressionPart) first, (ExpressionPart) second);
-            case Operation.MIN -> new Min((ExpressionPart) first, (ExpressionPart) second);
-            case Operation.MAX -> new Max((ExpressionPart) first, (ExpressionPart) second);
-            case Operation.MOVEL -> new MoveL((ExpressionPart) first, (ExpressionPart) second);
-            case Operation.MOVER -> new MoveR((ExpressionPart) first, (ExpressionPart) second);
-            case Operation.SMOVER -> new SignedMoveR((ExpressionPart) first, (ExpressionPart) second);
+            case ADD -> new CheckedAdd((ExpressionPart) first, (ExpressionPart) second);
+            case SUB -> new CheckedSubtract((ExpressionPart) first, (ExpressionPart) second);
+            case MUL -> new CheckedMultiply((ExpressionPart) first, (ExpressionPart) second);
+            case DIV -> new CheckedDivide((ExpressionPart) first, (ExpressionPart) second);
+            case MIN -> new Min((ExpressionPart) first, (ExpressionPart) second);
+            case MAX -> new Max((ExpressionPart) first, (ExpressionPart) second);
+            case MOVEL -> new MoveL((ExpressionPart) first, (ExpressionPart) second);
+            case MOVER -> new MoveR((ExpressionPart) first, (ExpressionPart) second);
+            case SMOVER -> new SignedMoveR((ExpressionPart) first, (ExpressionPart) second);
             default -> null;
         };
     }

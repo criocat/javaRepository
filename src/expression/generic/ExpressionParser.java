@@ -153,10 +153,10 @@ public class ExpressionParser<T> {
 
     private ExpressionPart<T> getResultOfOperation(ExpressionPart<T> first, ExpressionPart<T> second, Operation op) {
         return switch (op) {
-            case Operation.ADD -> new Add<T>(first, second, operations);
-            case Operation.SUB -> new Subtract<T>(first, second, operations);
-            case Operation.MUL -> new Multiply<T>(first, second, operations);
-            case Operation.DIV -> new Divide<T>(first, second, operations);
+            case ADD -> new Add<T>(first, second, operations);
+            case SUB -> new Subtract<T>(first, second, operations);
+            case MUL -> new Multiply<T>(first, second, operations);
+            case DIV -> new Divide<T>(first, second, operations);
             default -> null;
         };
     }
